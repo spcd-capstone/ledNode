@@ -43,11 +43,8 @@
 #include "LEDB.h"
 #include "LEDpin3.h"
 #include "BitIoLdd3.h"
-#include "WAIT1.h"
 #include "AS1.h"
-#include "IFsh1.h"
-#include "IntFlashLdd1.h"
-#include "RxBuf.h"
+#include "ASerialLdd1.h"
 #include "CS1.h"
 
 #ifdef __cplusplus
@@ -72,54 +69,79 @@ void Cpu_OnNMIINT(void);
 
 /*
 ** ===================================================================
-**     Event       :  IFsh1_OnWriteEnd (module Events)
+**     Event       :  AS1_OnError (module Events)
 **
-**     Component   :  IFsh1 [IntFLASH]
+**     Component   :  AS1 [AsynchroSerial]
+**     Description :
+**         This event is called when a channel error (not the error
+**         returned by a given method) occurs. The errors can be read
+**         using <GetError> method.
+**         The event is available only when the <Interrupt
+**         service/event> property is enabled.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
 */
-/*!
-**     @brief
-**         Event is called after a write operation to FLASH memory is
-**         finished (except [SetPage]). This event is available only if
-**         an [Interrupt service/event] is selected.
-*/
-/* ===================================================================*/
-void IFsh1_OnWriteEnd(void);
+void AS1_OnError(void);
 
 /*
 ** ===================================================================
-**     Event       :  AS1_OnBlockReceived (module Events)
+**     Event       :  AS1_OnRxChar (module Events)
 **
-**     Component   :  AS1 [Serial_LDD]
+**     Component   :  AS1 [AsynchroSerial]
+**     Description :
+**         This event is called after a correct character is received.
+**         The event is available only when the <Interrupt
+**         service/event> property is enabled and either the <Receiver>
+**         property is enabled or the <SCI output mode> property (if
+**         supported) is set to Single-wire mode.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
 */
-/*!
-**     @brief
-**         This event is called when the requested number of data is
-**         moved to the input buffer.
-**     @param
-**         UserDataPtr     - Pointer to the user or
-**                           RTOS specific data. This pointer is passed
-**                           as the parameter of Init method.
-*/
-/* ===================================================================*/
-void AS1_OnBlockReceived(LDD_TUserData *UserDataPtr);
+void AS1_OnRxChar(void);
 
 /*
 ** ===================================================================
-**     Event       :  AS1_OnBlockSent (module Events)
+**     Event       :  AS1_OnTxChar (module Events)
 **
-**     Component   :  AS1 [Serial_LDD]
+**     Component   :  AS1 [AsynchroSerial]
+**     Description :
+**         This event is called after a character is transmitted.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
 */
-/*!
-**     @brief
-**         This event is called after the last character from the
-**         output buffer is moved to the transmitter. 
-**     @param
-**         UserDataPtr     - Pointer to the user or
-**                           RTOS specific data. This pointer is passed
-**                           as the parameter of Init method.
+void AS1_OnTxChar(void);
+
+/*
+** ===================================================================
+**     Event       :  AS1_OnFullRxBuf (module Events)
+**
+**     Component   :  AS1 [AsynchroSerial]
+**     Description :
+**         This event is called when the input buffer is full;
+**         i.e. after reception of the last character 
+**         that was successfully placed into input buffer.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
 */
-/* ===================================================================*/
-void AS1_OnBlockSent(LDD_TUserData *UserDataPtr);
+void AS1_OnFullRxBuf(void);
+
+/*
+** ===================================================================
+**     Event       :  AS1_OnFreeTxBuf (module Events)
+**
+**     Component   :  AS1 [AsynchroSerial]
+**     Description :
+**         This event is called after the last character in output
+**         buffer is transmitted.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+void AS1_OnFreeTxBuf(void);
 
 /* END Events */
 
