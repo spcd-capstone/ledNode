@@ -30,10 +30,16 @@
 /* Including needed modules to compile this module/procedure */
 #include "Cpu.h"
 #include "Events.h"
-#include "CI2C1.h"
-#include "LED1.h"
+#include "LEDR.h"
 #include "LEDpin1.h"
 #include "BitIoLdd1.h"
+#include "LEDG.h"
+#include "LEDpin2.h"
+#include "BitIoLdd2.h"
+#include "LEDB.h"
+#include "LEDpin3.h"
+#include "BitIoLdd3.h"
+#include "CS1.h"
 #include "AS1.h"
 #include "ASerialLdd1.h"
 /* Including shared modules, which are used for whole project */
@@ -43,7 +49,7 @@
 #include "IO_Map.h"
 
 /* User includes (#include below this line is not maintained by Processor Expert) */
-#include "DS1621.h"
+#include "RGB_LED.h"
 #include "UART.h"
 #include "string.h"
 
@@ -54,20 +60,17 @@ int main(void)
 /*lint -restore Enable MISRA rule (6.3) checking. */
 {
   /* Write your local variable definition here */
-  unsigned int target, temperature;
-  unsigned int counter;
+  unsigned int color;
   char name[64];
   /*** Processor Expert internal initialization. DON'T REMOVE THIS CODE!!! ***/
   PE_low_level_init();
   /*** End of Processor Expert internal initialization.                    ***/
 
   /* Write your code here */
-  InitDS1621();
   InitParser(&commandParser);
   
-  target = 0; //set target so we don't turn on the furnace before we have a real target
-  counter = 0;
-  strcpy(name,"Thermometer Node");
+  color = 0; //light starts off
+  strcpy(name,"LED Node");
   
   while(1)
   {
@@ -76,13 +79,9 @@ int main(void)
 	  {
 		  if (commandParser.command == PC_GET)
 		  {
-			  if (strcmp("temperature", commandParser.key) == 0)
+			  if (strcmp("color", commandParser.key) == 0)
 			  {
-				  SendInteger(temperature);
-			  }
-			  else if (strcmp("target", commandParser.key) == 0)
-			  {
-				  SendInteger(target);
+				  SendInteger(color);
 			  }
 			  else if (strcmp("name", commandParser.key) == 0)
 			  {
@@ -95,9 +94,9 @@ int main(void)
 		  }
 		  else if (commandParser.command == PC_SET)
 		  {
-			  if ((strcmp("target", commandParser.key) == 0) && (commandParser.dataType == PDT_INTEGER))
+			  if ((strcmp("color", commandParser.key) == 0) && (commandParser.dataType == PDT_INTEGER))
 			  {
-				  target = commandParser.dataInt;
+				  color = commandParser.dataInt;
 				  SendSuccess();
 			  }
 			  else if ((strcmp("name", commandParser.key) == 0) && (commandParser.dataType == PDT_STRING))
@@ -113,25 +112,7 @@ int main(void)
 		  commandParser.state = PS_COMMAND;
 	  }
 	  //normal operations
-	  //update temperature periodically (~4-5 seconds)
-	  if (counter >= 2000000) //2 mil
-	  {
-		  temperature = ReadTemperature();
-		  counter = 0;
-	  }
-	  else
-	  {
-		  counter++;
-	  }
-	  //control furnace
-	  if (temperature < target)
-	  {
-		  LED1_Put(1); //turn furnace on
-	  }
-	  else
-	  {
-		  LED1_Put(0); //shut furnace off
-	  }
+	  makeColor(color);
   }
   /* For example: for(;;) { } */
 
